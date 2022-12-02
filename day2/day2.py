@@ -1,9 +1,9 @@
 import enum
 
 class Move(enum.Enum):
-    ROCK = 1
-    PAPER = 2
-    SCISSORS = 3
+    ROCK = 0
+    PAPER = 1
+    SCISSORS = 2
 
 class Outcome(enum.Enum):
     DRAW = 0
@@ -12,21 +12,22 @@ class Outcome(enum.Enum):
 
 def score_for_first_player(p1: Move, p2: Move):
     outcome = Outcome((p1.value - p2.value) % 3)
+    move_score = p1.value + 1
     if outcome == Outcome.WIN:
-        return p1.value + 6
+        return move_score + 6
     elif outcome == Outcome.DRAW:
-        return p1.value + 3
+        return move_score + 3
     else:
-        return p1.value
+        return move_score
 
 def player_move_given_outcome(p1: Move, outcome: Outcome):
     if outcome == Outcome.DRAW:
         return p1
     elif outcome == Outcome.LOSE:
-        return Move((p1.value - 2) % 3 + 1)
+        return Move((p1.value - 1) % 3)
     else:
         # win
-        return Move(p1.value % 3 + 1)
+        return Move((p1.value + 1) % 3)
 
 col1_dict = {'A': Move.ROCK, 'B': Move.PAPER, 'C': Move.SCISSORS}
 col2_dict = {'X': Outcome.LOSE, 'Y': Outcome.DRAW, 'Z': Outcome.WIN}
