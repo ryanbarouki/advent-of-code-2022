@@ -5,11 +5,9 @@ def get_priority(c):
         return ord(c) - ord('A') + 27
 
 def find_badge(group):
-    # it ain't pretty but it works
     first, second, third = group
-    for c in first:
-        if c in second and c in third:
-            return c
+    # yesss sets are sick
+    return (set(first) & set(second) & set(third)).pop()
 
 #part 1
 with open('input.txt') as f:
@@ -19,12 +17,8 @@ with open('input.txt') as f:
         first = line[:int(len(line)/2)]
         second = line[int(len(line)/2):]
 
-        priority = 0
-        for c in first:
-            if c in second:
-                priority += get_priority(c)
-                break
-        total += priority 
+        c = (set(first) & set(second)).pop()
+        total += get_priority(c)
     print(f"Part 1: {total}")
 
 #part 2
