@@ -1,7 +1,6 @@
 def first_non_repeating_sequence(input, len_of_sequence):
     for i, c in enumerate(input):
-        group = [*input[i:i+len_of_sequence]]
-        if len(set(group)) == len_of_sequence:
+        if len(set(input[i:i+len_of_sequence])) == len_of_sequence:
             return i + len_of_sequence
 
 with open('input.txt') as f:
