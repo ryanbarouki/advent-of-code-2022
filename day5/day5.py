@@ -33,5 +33,4 @@ with open('input.txt') as f:
             move_between_stacks_part2(stacks[int(start)-1], stacks[int(end)-1], int(num))
 
     print(f'Part 2: {"".join([stack.pop() for stack in stacks])}')
-                
 
