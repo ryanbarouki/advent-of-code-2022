@@ -1,12 +1,9 @@
-class Tree(object):
-    def __init__(self, name, parent=None, data=None, children=None) -> None:
+class Tree:
+    def __init__(self, name, parent=None, data=None) -> None:
         self.name = name
         self.children = []
         self.parent = parent
         self.data = data
-        if children is not None:
-            for child in children:
-                self.add_child(child)
 
     def __repr__(self):
         return self.name
@@ -15,18 +12,62 @@ class Tree(object):
         assert isinstance(node, Tree)
         self.children.append(node)
     
+    def print_recurse(self, indent: str, last: bool):
+        print(indent, end="")
+        if last:
+            print(" └─", end="")
+            indent += "  "
+        else:
+            print(" ├─", end="")
+            indent += " │"
+        print(f"{self.name},{self.data}")
+
+        for pos, child in enumerate(self.children):
+            child.print_recurse(indent, pos==len(self.children)-1)
+
+    def print(self):
+        self.print_recurse("", True)
+
+    
 def return_to_root(tree):
     curr = tree
-    print(tree)
     while curr.parent is not None:
         curr = curr.parent
     return curr
 
-with open('input.txt') as f:
-    nodes = {}
-    curr_dir = Tree('/')
-    next(f)
+def calculate_size(tree):
+    temp = 0
+    if not tree.children:
+        temp += tree.data if tree.data else 0
+    else:
+        for child in tree.children:
+            temp += calculate_size(child)
+    return temp
+
+def sum_of_dirs_less_than_size(tree, max_size):
+    temp = 0
+    if tree.children:
+        size = calculate_size(tree)
+        if size <= max_size:
+            temp += size
+        for child in tree.children:
+            temp += sum_of_dirs_less_than_size(child, max_size)
+    return temp
+
+def find_dir_to_delete(tree, used_space, total_space, update_size):
     dirs = []
+    if tree.children:
+        size = calculate_size(tree)
+        if total_space - used_space + size > update_size:
+            dirs.append(size)
+        for child in tree.children:
+            dirs += find_dir_to_delete(child, used_space, total_space, update_size)
+    return dirs
+
+with open('input.txt') as f:
+    TOTAL_SIZE = 70000000
+    UPDATE_SIZE = 30000000
+    curr_dir = Tree('/')
     for line in f.readlines():
         line = line.strip()
         if line[0] == '$':
@@ -38,8 +79,6 @@ with open('input.txt') as f:
                     for child in curr_dir.children:
                         if child.name == command[1]:
                             curr_dir = child
-            elif command[0] == 'ls':
-                pass
         else:
             size_or_dir, filename = line.split(" ")
             if size_or_dir == 'dir':
@@ -47,4 +86,7 @@ with open('input.txt') as f:
             else:
                 curr_dir.add_child(Tree(filename, parent=curr_dir, data=int(size_or_dir)))
     root = return_to_root(curr_dir)
-    print(root)
+    root.print()
+    print(f"Part 1: Sum of directory sizes less than 100000: {sum_of_dirs_less_than_size(root, 100000)}")
+    dir_sizes = find_dir_to_delete(root, calculate_size(root), TOTAL_SIZE, UPDATE_SIZE)
+    print(f"Part 2: Size of smallest directory to delete: {sorted(dir_sizes)[0]}")
