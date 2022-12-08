@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 def count_trees_less_than_height(tree_height, row):
     count = 0
     for height in row:
-        if int(height) >= tree_height:
+        if height >= tree_height:
             return count + 1
         count += 1
     return count
@@ -18,16 +18,16 @@ def count_visible_trees_alond_direction(trees, irange, jrange, seen, is_col=Fals
             else:
                 I,J = i,j
             height = trees[I][J]
-            if int(height) > max_height:
+            if height > max_height:
                 seen.add((I,J))
-                max_height = int(height)
+                max_height = height
 
 with open('input.txt') as f:
     trees = []
     seen = set()
     for line in f.readlines():
         line = line.strip()
-        trees.append([*line])
+        trees.append([int(height) for height in line])
         
     row_length = len(trees[0])
     col_length = len(trees)
@@ -36,7 +36,7 @@ with open('input.txt') as f:
     count_visible_trees_alond_direction(trees, range(row_length), range(col_length), seen, is_col=True)
     count_visible_trees_alond_direction(trees, range(row_length), range(col_length-1, -1, -1), seen, is_col=True)
 
-    print(f"Visible count: {len(seen)}")
+    print(f"Part 1, visible count: {len(seen)}")
 
     trees = np.array(trees)
     factors = []
@@ -48,20 +48,14 @@ with open('input.txt') as f:
             down = list(trees[i+1:,j])
             up = list(trees[:i,j])
             up.reverse()
-            curr_tree_height = int(trees[i,j])
+            curr_tree_height = trees[i,j]
             r_factor = count_trees_less_than_height(curr_tree_height, right)
             l_factor = count_trees_less_than_height(curr_tree_height, left)
             d_factor = count_trees_less_than_height(curr_tree_height, down)
             u_factor = count_trees_less_than_height(curr_tree_height, up)
             factors.append(r_factor*l_factor*u_factor*d_factor)
 
-    print(f"Part 2: {sorted(factors).pop()}")
+    print(f"Part 2, max visibility factor: {sorted(factors).pop()}")
 
-
-
-
-
-
-
-    # plt.imshow([[int(x) for x in row] for row in trees])
+    # plt.imshow(trees)
     # plt.show()
