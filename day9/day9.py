@@ -20,21 +20,21 @@ def update_head(instruction, head_pos):
 def update_tail(head_pos, tail_pos):
     if not too_far(head_pos, tail_pos):
         return tail_pos 
+
     head_x, head_y = head_pos
     tail_x, tail_y = tail_pos
     new_x, new_y = tail_x, tail_y
-    diff_x = head_x - tail_x
-    diff_y = head_y - tail_y
-    if diff_x != 0:
-        if head_x > tail_x:
-            new_x += 1
-        elif head_x < tail_x:
-            new_x -= 1
-    if diff_y != 0:
-        if head_y > tail_y:
-            new_y += 1
-        if head_y < tail_y:
-            new_y -= 1
+
+    if head_x > tail_x:
+        new_x += 1
+    elif head_x < tail_x:
+        new_x -= 1
+
+    if head_y > tail_y:
+        new_y += 1
+    if head_y < tail_y:
+        new_y -= 1
+
     return new_x, new_y
 
 def find_tail_positions(instructions, rope_length):
