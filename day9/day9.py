@@ -1,12 +1,10 @@
-from math import sqrt
-
-def too_far(head_pos, tail_pos):
+def too_close(head_pos, tail_pos):
     head_x, head_y = head_pos
     tail_x, tail_y = tail_pos
-    distance = sqrt((head_x - tail_x)**2 + (head_y - tail_y)**2)
-    return distance > sqrt(2)
+    distance = max(abs(head_x - tail_x), abs(head_y - tail_y))
+    return distance <= 1
 
-def update_head(instruction, head_pos):
+def move_head(instruction, head_pos):
     x,y = head_pos
     if instruction == 'R':
         return (x+1,y)
@@ -18,7 +16,7 @@ def update_head(instruction, head_pos):
         return (x,y+1)
 
 def update_tail(head_pos, tail_pos):
-    if not too_far(head_pos, tail_pos):
+    if too_close(head_pos, tail_pos):
         return tail_pos 
 
     head_x, head_y = head_pos
@@ -37,16 +35,20 @@ def update_tail(head_pos, tail_pos):
 
     return new_x, new_y
 
+def update_rope(rope, instruction):
+    for i, pos in enumerate(rope):
+        if i == 0:
+            rope[i] = move_head(instruction, pos)
+        else:
+            rope[i] = update_tail(rope[i-1], pos)
+    return rope
+
 def find_tail_positions(instructions, rope_length):
     rope = [(0,0) for i in range(rope_length)]
     tail_positions = set()
     tail_positions.add(rope[rope_length-1])
     for instruction in instructions:
-        for i, pos in enumerate(rope):
-            if i == 0:
-                rope[i] = update_head(instruction, pos)
-            else:
-                rope[i] = update_tail(rope[i-1], pos)
+        rope = update_rope(rope, instruction)
         tail_positions.add(rope[rope_length-1])
     return tail_positions
 
