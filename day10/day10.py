@@ -16,22 +16,27 @@ def print_pixel(cycle, register):
     return output
 
 with open('input.txt') as f:
+    ops = []
+    for line in f.readlines():
+        line = line.strip()
+        if line != 'noop':
+            command, value = line.split(" ")
+            ops += [command, int(value)]
+        else:
+            ops.append(line)
+
     cycle = 0
     register = 1
     signal_strength = 0
     screen = ""
-    for line in f.readlines():
-        line = line.strip()
-        value = 0
-        if line != 'noop':
-            command, value = line.split(" ")
-            cycle += 1
-            signal_strength += check_signal_strength(cycle, register)
-            screen += print_pixel(cycle, register)
+    for op in ops:
         cycle += 1
         signal_strength += check_signal_strength(cycle, register)
         screen += print_pixel(cycle, register)
-        register += int(value)
+        if op != 'noop' and op != 'addx':
+            register += op
+
+
     print(f"Part 1: Signal strengths: {signal_strength}")
     print("Part 2")
     print(screen)
