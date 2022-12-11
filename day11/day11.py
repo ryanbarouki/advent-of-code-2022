@@ -26,9 +26,6 @@ class FiniteField:
             assert(other.mod == self.mod)
             return FiniteField((self.n*other.n), self.mod)
     
-    def __floordiv__(self, other):
-        return FiniteField(self.n // other, self.mod)
-
 def make_test_func(true, false):
     return lambda x: true if x.n == 0 else false
 
