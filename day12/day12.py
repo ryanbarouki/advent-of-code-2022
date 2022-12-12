@@ -5,9 +5,7 @@ def allowed_moves(pos, height_map, bounds, end):
     x_max, y_max = bounds
     curr_height = height_map[pos]
     moves = []
-    # up, down, left, right
     if x > 0:
-        #can move left
         new_pos = (x-1,y)
         moves.append(new_pos)
     if x < x_max:
