@@ -1,6 +1,6 @@
 from collections import deque
 
-def allowed_moves(pos, height_map, bounds, end):
+def allowed_moves(pos, height_map, bounds):
     x,y = pos
     x_max, y_max = bounds
     curr_height = height_map[pos]
@@ -21,7 +21,8 @@ def allowed_moves(pos, height_map, bounds, end):
     allowed_moves = list(filter(lambda z: height_map[z] <= curr_height + 1, moves))
     return allowed_moves
 
-def shortest_path(start, end, adj_map):
+def breadth_first_search(start, adj_map, stop_func):
+    # Dijkstra? never heard of her
     visited = set()
     queue = deque()
     queue.append((start, 0))
@@ -29,7 +30,7 @@ def shortest_path(start, end, adj_map):
 
     while len(queue) > 0:
         node, dist = queue.popleft()
-        if node == end:
+        if stop_func(node):
             return dist
         
         for neighbour in adj_map[node]:
@@ -61,14 +62,16 @@ with open('input.txt') as f:
 
     adjacency_map = {}
     for pos in height_map:
-        adjacency_map[pos] = allowed_moves(pos, height_map, bounds, end)
+        adjacency_map[pos] = allowed_moves(pos, height_map, bounds)
     
-    print(f"Part 1: shortest path is {shortest_path(start, end, adjacency_map)}")
+    print(f"Part 1: shortest path is {breadth_first_search(start, adjacency_map, lambda node: node == end)}")
 
-    shortest_paths = []
+    # part 2
+    # gotta invert the height map since we are searching from the other directions and valid moves aren't reversible
+    # still quicker than looping through all points that are height 0 and running the part 1 on it
+    height_map = {pos: -height_map[pos] for pos in height_map}
     for pos in height_map:
-        if height_map[pos] == 0:
-            shortest_paths.append(shortest_path(pos, end, adjacency_map))
-    
-    print(f"Part 2: shortest shortest path is {sorted(list(filter(lambda x: x != -1, shortest_paths)), reverse=True).pop()}")
+        adjacency_map[pos] = allowed_moves(pos, height_map, bounds)
+
+    print(f"Part 2: shortest path is {breadth_first_search(end, adjacency_map, lambda node: height_map[node] == 0)}")
 
