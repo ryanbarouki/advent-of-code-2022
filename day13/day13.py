@@ -1,5 +1,6 @@
+from merge_sort import merge_sort
+
 def compair(left, right):
-    # print(f"left: {left}, right: {right}")
     if type(left) == int and type(right) == int:
         if left < right:
             return True
@@ -21,7 +22,7 @@ def compair(left, right):
             comp = compair(left_val, right[i])
             if comp is None:
                 if i == len(left) - 1:
-                    return True
+                  return True
                 continue
             return comp
 
@@ -41,8 +42,25 @@ with open('input.txt') as f:
     for i, pair in enumerate(pairs):
         left, right = pair
         comp = compair(left,right)
+        merge_sort(pair, 0, len(pair)-1, compair)
         if comp:
             count += i + 1
     print(f"Part 1: {count}")
 
-            
+# part 2
+with open('input.txt') as f:
+    lists = [[[2]], [[6]]]
+    for line in f.readlines():
+        line = line.strip()
+        if line != "": 
+            lst = eval(line)
+            lists.append(lst)
+
+    # I had to do my own merge sort because python uses key to sort not cmp
+    # and functools cmp_to_key wasn't working!! This caused me a lot of pain
+    merge_sort(lists, 0, len(lists)-1, compair)
+
+    index_2 = lists.index([[2]]) + 1
+    index_6 = lists.index([[6]]) + 1
+
+    print(f"Part 2: {index_2*index_6}")
