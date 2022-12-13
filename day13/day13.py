@@ -25,7 +25,7 @@ def compair(left, right):
                   return True
                 continue
             return comp
-
+        
 with open('input.txt') as f:
     pairs = []
     pair = []
@@ -58,6 +58,10 @@ with open('input.txt') as f:
 
     # I had to do my own merge sort because python uses key to sort not cmp
     # and functools cmp_to_key wasn't working!! This caused me a lot of pain
+    # i.e.
+    # lists.sort(key=cmp_to_key(lambda left, right: -1 if compair(left, right) else 1))
+    # doens't work?!?!?!
+    # something to do with my messy compair function
     merge_sort(lists, 0, len(lists)-1, compair)
 
     index_2 = lists.index([[2]]) + 1
