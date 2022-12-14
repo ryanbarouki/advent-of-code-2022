@@ -29,10 +29,8 @@ def fall_sand(blocked_points, floor):
         if not blocked(right, blocked_points, floor):
             pos = right
             continue
-        if pos == (500,0):
-            return False
         blocked_points.add(pos)
-        return True
+        return pos != (500, 0)
 
 with open('input.txt') as f:
     blocked_lines = []
@@ -73,6 +71,6 @@ with open('input.txt') as f:
         count += 1
         keep_going = fall_sand(blocked_points, floor)
     
-    # print(draw(blocked_points, floor, (300,700), (0,169)))
+    print(draw(blocked_points, floor, (325,675), (0,169)))
     print(f"Part 2: {count}")
 
