@@ -81,6 +81,7 @@ class Chamber:
         self.floor = 0
         self.rock_builder = RockBuilder()
         self.cycle_cache = set()
+        self.repeats = []
     
     def spawn_rock(self):
         return self.rock_builder.build_next_rock((3,self.top_y+4))
@@ -95,16 +96,16 @@ class Chamber:
         moves = {'>': (1,0), '<': (-1,0)}
         jet_move_count = 0
         for i in range(iterations):
-            print(f"{i}\r", end="")
             move_jet = True
             rock = self.spawn_rock()
-            # print(self.normal_col_heights)
-            # print(self.col_heights)
+
             cache_key = f"{rock.rock_type}{jet_move_count}{','.join([str(x) for x in self.normal_col_heights])}"
             if cache_key in self.cycle_cache:
-                # print('repeat', i, self.top_y)
                 self.cycle_cache.clear()
+                if len(self.repeats) < 3:
+                    self.repeats.append((i, self.top_y))
             self.cycle_cache.add(cache_key)
+
             while True:
                 if move_jet:
                     move_vec = moves[self.jets[jet_move_count]] 
@@ -126,7 +127,6 @@ class Chamber:
                 if self.col_heights[x] < y:
                     self.col_heights[x] = y
                     self.normal_col_heights[x] = y - self.floor
-                    # print("floor", self.floor)
             min_height = min(self.col_heights[1:-1])
             if min_height > self.floor:
                 self.floor = min_height - 1
@@ -160,9 +160,23 @@ with open('input.txt') as f:
         line = line.strip()
         jets = [*line]
     
+    # this is all super ugly but I don't want to care anymore
     chamber = Chamber(width=7, jets=jets)
     start = time.time()
-    chamber.main_loop(2022)
-    end = time.time()
-    # print(chamber)
-    print(f"Part 1: {chamber.top_y} in {end-start} seconds")    
+    goal_rocks = 1_000_000_000_000
+    chamber.main_loop(10000)
+    first, second, third = chamber.repeats
+    first_rocks, first_height = first
+    second_rocks, second_height = second
+    third_rocks, third_height = third
+    height_diff = third_height - second_height
+    rock_diff = third_rocks - second_rocks
+    int_repeats = (goal_rocks - first_rocks) // rock_diff
+    excess_rocks = goal_rocks - int_repeats*rock_diff - first_rocks
+
+    chamber2 = Chamber(width=7, jets=jets)
+    chamber2.main_loop(first_rocks + rock_diff + excess_rocks)
+    excess_height = chamber2.top_y - chamber2.repeats[-1][1]
+    
+    total_height = int_repeats*height_diff + first_height + excess_height
+    print(f"Part 2: {total_height}")
