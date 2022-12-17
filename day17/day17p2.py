@@ -77,8 +77,10 @@ class Chamber:
         self.top_y = 0
         self.rocks = set() # rocks above floor
         self.col_heights = [0 for _ in range(width+2)]
+        self.normal_col_heights = [0 for _ in range(width+2)]
         self.floor = 0
         self.rock_builder = RockBuilder()
+        self.cycle_cache = set()
     
     def spawn_rock(self):
         return self.rock_builder.build_next_rock((3,self.top_y+4))
@@ -96,10 +98,13 @@ class Chamber:
             print(f"{i}\r", end="")
             move_jet = True
             rock = self.spawn_rock()
-            if rock.rock_type == "-" and jet_move_count == 0:
-                if i != 0:
-                    print(self.top_y, i)
-                    break
+            # print(self.normal_col_heights)
+            # print(self.col_heights)
+            cache_key = f"{rock.rock_type}{jet_move_count}{','.join([str(x) for x in self.normal_col_heights])}"
+            if cache_key in self.cycle_cache:
+                # print('repeat', i, self.top_y)
+                self.cycle_cache.clear()
+            self.cycle_cache.add(cache_key)
             while True:
                 if move_jet:
                     move_vec = moves[self.jets[jet_move_count]] 
@@ -120,14 +125,17 @@ class Chamber:
                 x,y = coord
                 if self.col_heights[x] < y:
                     self.col_heights[x] = y
-            min_height = min(self.col_heights)
+                    self.normal_col_heights[x] = y - self.floor
+                    # print("floor", self.floor)
+            min_height = min(self.col_heights[1:-1])
             if min_height > self.floor:
-                self.floor = min_height
+                self.floor = min_height - 1
                 self.trim_rocks(self.floor)
             self.top_y = max(self.col_heights)
 
     def trim_rocks(self, height):
-        for rock in self.rocks:
+        rocks = self.rocks.copy()
+        for rock in rocks:
             x,y = rock
             if y < height:
                 self.rocks.remove(rock)
@@ -154,7 +162,7 @@ with open('input.txt') as f:
     
     chamber = Chamber(width=7, jets=jets)
     start = time.time()
-    chamber.main_loop(10000000)
+    chamber.main_loop(2022)
     end = time.time()
     # print(chamber)
     print(f"Part 1: {chamber.top_y} in {end-start} seconds")    

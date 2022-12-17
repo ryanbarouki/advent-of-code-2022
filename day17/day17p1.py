@@ -120,7 +120,6 @@ with open('input.txt') as f:
         line = line.strip()
         jets = [*line]
 
-    print(len(jets)) 
     chamber = Chamber(width=7, jets=jets)
     chamber.main_loop(2022)
     # print(chamber)
