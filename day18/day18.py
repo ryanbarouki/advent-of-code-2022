@@ -1,69 +1,63 @@
+from collections import deque
+
+def get_neighbours(p, bulk):
+    adjacent_coords = [(1,0,0), (0,1,0), (0,0,1), (-1,0,0), (0,-1,0), (0,0,-1)]
+    x,y,z = p
+    neighbours = []
+    for adj_p in adjacent_coords:
+        dx,dy,dz = adj_p
+        if (x+dx, y+dy, z+dz) not in bulk:
+            neighbours.append((x+dx, y+dy, z+dz))
+    return neighbours
+
+
+def flood_fill(start, bulk):
+    visited = set()
+    queue = deque()
+    queue.append(start)
+    visited.add(start)
+    i = 0
+    faces = 0
+
+    while len(queue) > 0:
+        node = queue.popleft()
+        if i == 1000000:
+            return faces
+        neighbours = get_neighbours(node, bulk)
+        faces += 6 - len(neighbours) 
+        for neighbour in neighbours:
+            if neighbour not in visited:
+                queue.append(neighbour)
+                visited.add(neighbour)
+        i += 1
+    return -1
+
 with open('input.txt') as f:
-    coords = set()
+    bulk = set()
     for line in f.readlines():
         line = line.strip()
         x,y,z = line.split(",")
-        coords.add((int(x),int(y),int(z)))
+        bulk.add((int(x),int(y),int(z)))
 
     adjacent_coords = [(1,0,0), (0,1,0), (0,0,1), (-1,0,0), (0,-1,0), (0,0,-1)]
     surface_area = 0
-    for coord in coords:
+    for coord in bulk:
         area = 6
         x,y,z = coord
         for dv in adjacent_coords:
             dx,dy,dz = dv 
-            if (x+dx, y+dy, z+dz) in coords:
+            if (x+dx, y+dy, z+dz) in bulk:
                 area -= 1
         surface_area += area
     
     print(f"Part 1: surface area is {surface_area}")
 
-    external_points = set()
-    external_area = 0
-    for coord in coords:
-        area = 6
-        x,y,z = coord
-        for dv in adjacent_coords:
-            dx,dy,dz = dv 
-            if (x+dx, y+dy, z+dz) in coords:
-                area -= 1
-            else:
-                external_points.add((x+dx, y+dy, z+dz))
-    
+    min_x = min(bulk, key=lambda x: x[0])[0]
+    min_y = min(bulk, key=lambda x: x[1])[1]
+    min_z = min(bulk, key=lambda x: x[2])[2]
 
-    cavity_points = set()
-    for p in external_points:
-        # outer boundary points have at least one direction where no point in the volume has a greater value in
-        # that direction
-        x,y,z = p
-        x1,x2,y1,y2,z1,z2 = False, False, False, False, False, False
-        for interal in coords:
-            # cavity points: there will exist x1,x2,y1,y2,z1,z2 s.t. x1 < x < x2, y1 < y < y2, z1 < z < z2 
-            xi,yi,zi = interal
-            if xi < x and yi == y and zi == z:
-                x1 = True
-            elif xi > x and yi == y and zi == z:
-                x2 = True
-            if yi < y and xi == x and zi == z:
-                y1 = True
-            elif yi > y and xi == x and zi == z:
-                y2 = True
-            if zi < z and xi == x and yi == y:
-                z1 = True
-            elif zi > z and xi == x and yi == y:
-                z2 = True
-        if x1 and x2 and y1 and y2 and z1 and z2:
-            cavity_points.add(p)
-            
-    print(len(external_points))
-    surface_area = 0
-    for coord in coords:
-        area = 6
-        x,y,z = coord
-        for dv in adjacent_coords:
-            dx,dy,dz = dv 
-            adj_p = (x+dx, y+dy, z+dz)
-            if adj_p in coords | cavity_points:
-                area -= 1
-        surface_area += area
-    print(surface_area)
+    # breadth first search from the min of bounding box and 'flood' the outer block
+    # counting the faces as we go
+    # kinda had to just stop the flood fill after a large enough time so that it's covered
+    # there is probs a much better way
+    print(f"Part 2: {flood_fill((min_x-1,min_y-1,min_z-1), bulk)}")
