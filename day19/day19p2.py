@@ -25,8 +25,6 @@ class MoveSearch:
     def trim_moves(self, moves, depth):
         if 'geode' in moves:
             return [moves['geode']]
-        # elif 'obsidian' in moves:
-        #     return [moves['obsidian']]
         return moves.values()
 
     def get_possible_moves(self, resources, robots, depth):
@@ -35,9 +33,15 @@ class MoveSearch:
         for robot in self.blueprint:
             if robot == 'ore' and resources['ore'] > self.max_ore_cost*(self.max_depth - depth):
                 continue
+            if robot == 'ore' and robots['ore'] > max_ore_cost:
+                continue
             if robot == 'clay' and resources['clay'] > self.max_clay_cost*(self.max_depth - depth):
                 continue
+            if robot == 'clay' and robots['clay'] > max_clay_cost:
+                continue
             if robot == 'obsidian' and resources['obsidian'] > self.max_obsidian_cost*(self.max_depth - depth):
+                continue
+            if robot == 'obsidian' and robots['obsidian'] > max_obsidian_cost:
                 continue
             new_resources = resources.copy()
             new_robots = robots.copy()
@@ -112,11 +116,11 @@ with open('input.txt') as f:
                 'geode': {'ore': 3, 'clay': 0, 'obsidian': 12}
     }
     # blueprints = [(blueprint1, 4, 14, 7), (blueprint2, 3, 8, 12)]
-    quality = 0
-    for i, (blueprint, max_ore, max_clay, max_obsidian) in enumerate(blueprints):
-        move_search = MoveSearch(blueprint, 24, max_ore, max_clay, max_obsidian)
+    quality = 1
+    for i, (blueprint, max_ore, max_clay, max_obsidian) in enumerate(blueprints[0:3]):
+        move_search = MoveSearch(blueprint, 32, max_ore, max_clay, max_obsidian)
         final_moves = move_search.bfs_moves()
         max_geodes = sorted(final_moves, key=lambda x: x['geode']).pop()['geode']
         print(f"blueprint {i+1} max geodes: {max_geodes}")
-        quality += (i+1)*max_geodes
+        quality *= max_geodes
     print(f"Part 1: quality level is {quality}")
