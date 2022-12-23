@@ -89,7 +89,7 @@ def move(pos, map, dir, visited):
                 new_pos = (y,SIZE,next_face,3)
             case _:
                 # not a special wrapping and wraps normally
-                x,y = x%(SIZE+1), y%(SIZE+1)
+                x,y = xn%(SIZE+1), yn%(SIZE+1)
                 new_pos = (x,y,next_face,facing)
         if not blocked(map, new_pos):
             pos = new_pos
@@ -131,7 +131,7 @@ with open('input.txt') as f:
     x,y,face,facing = pos
     face_x, face_y = face_coords[face]
     visited = {(x+face_x,y+face_y): facing}
-    for comm in instructions[:]:
+    for comm in instructions:
         pos = move(pos, map, comm, visited)
     
     out = print_map(map, visited)
