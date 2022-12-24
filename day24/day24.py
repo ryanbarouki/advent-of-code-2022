@@ -15,6 +15,19 @@ def move_blizzard(blizzard):
             new_blizzard.append((x,(y-1)%HEIGHT,dir))
     return new_blizzard
 
+def move_blizzard_back(blizzard):
+    new_blizzard = []
+    for x,y,dir in blizzard:
+        if dir == '>':
+            new_blizzard.append(((x-1)%WIDTH,y,dir))
+        elif dir == '<':
+            new_blizzard.append(((x+1)%WIDTH,y,dir))
+        elif dir == 'v':
+            new_blizzard.append((x,(y-1)%HEIGHT,dir))
+        elif dir == '^':
+            new_blizzard.append((x,(y+1)%HEIGHT,dir))
+    return new_blizzard
+
 def get_neighbours(node, blizzard, walls):
     x,y = node
     possible_moves = set(((x,y), (x+1,y), (x-1,y), (x,y+1), (x,y-1)))
@@ -22,13 +35,10 @@ def get_neighbours(node, blizzard, walls):
     blizzard_coords = set([(x,y) for x,y,c in blizzard])
     moves = possible_moves - (possible_moves & blizzard_coords)
     moves = moves - (moves & walls)
-    # print(moves)
     return moves, next_blizzard
 
     
 def print_blizzard(blizzard):
-    x1, y1= min(blizzard, key=lambda x: x[0])[0], min(blizzard, key=lambda x: x[1])[1]
-    x2, y2= max(blizzard, key=lambda x: x[0])[0], max(blizzard, key=lambda x: x[1])[1]
     blizzard_coords = [(x,y) for x,y,c in blizzard]
     out = [['.' for x in range(WIDTH)] for y in range(HEIGHT)]
     counts = {(x,y):blizzard_coords.count((x,y)) for (x,y) in blizzard_coords}
@@ -50,18 +60,15 @@ def bfs(start, blizzard, walls, end):
     while len(queue) > 0:
         node, blizzard, dist = queue.popleft()
         if node == end:
-            return dist
+            return dist-1, blizzard
         
         moves, next_blizzard = get_neighbours(node, blizzard, walls)
-        # print(node,moves, dist)
-        # print(print_blizzard(next_blizzard))
         for move in moves:
             if (move, tuple(next_blizzard)) not in visited:
                 queue.append((move, next_blizzard, dist+1))
                 visited.add((move,tuple(next_blizzard)))
     return -1
     
-
 with open('input.txt') as f:
     lines = []
     for line in f.readlines():
@@ -70,7 +77,6 @@ with open('input.txt') as f:
     
     HEIGHT = len(lines) - 2
     WIDTH = len(lines[0]) - 2
-    print(HEIGHT, WIDTH)
     
     start = ()
     end = ()
@@ -93,12 +99,13 @@ with open('input.txt') as f:
     walls.add((xs,ys-1))
     xe,ye = end
     walls.add((xe,ye+1))
-    print(start, end)
             
-    # for _ in range(18):
-    #     print(print_blizzard(blizzards))
-    #     blizzards = move_blizzard(blizzards)
-    # print(print_blizzard(blizzards))
-    print(f"Part 1: {bfs(start, blizzards, walls, end)-1}")
-    # print(f"Part 1: {bfs(start, blizzards, walls, end)-1}")
+    # print(f"Part 1: {bfs(start, blizzards, walls, end)}")
+    
+    # part 2
+    start_to_end, blizzards = bfs(start, blizzards, walls, end)
+    end_to_start, blizzards = bfs(end, move_blizzard_back(blizzards), walls, start)
+    back_again, blizzards = bfs(start, move_blizzard_back(blizzards), walls, end)
+
+    print(f"Part 2: {start_to_end + end_to_start + back_again}")
     
