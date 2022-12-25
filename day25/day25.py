@@ -3,29 +3,22 @@ snafu_to_dec = {'=':-2, '-':-1, '0': 0, '1': 1, '2': 2}
 def to_snafu(dec):
     rem = dec % 5
     dec = dec // 5
-    base5 = [str(rem)]
+    base5 = [rem]
     while dec != 0:
         rem = dec % 5
         dec = dec // 5
-        base5.append(str(rem))
+        base5.append(rem)
 
     snafu = ""
     carry = 0
+    base5_to_snafu = {0:'0', 1:'1', 2:'2', 3:'=', 4:'-', 5:'0'}
     for num in base5:
-        num = int(num) + carry
-        if int(num) < 3:
-            snafu = str(num) + snafu
+        num = num + carry
+        snafu = base5_to_snafu[num] + snafu
+        if num < 3:
             carry = 0
-        elif int(num) == 3:
-            snafu = "=" + snafu
+        else:
             carry = 1
-        elif int(num) == 4:
-            snafu = "-" + snafu
-            carry = 1
-        elif int(num) == 5:
-            snafu = "0" + snafu
-            carry = 1
-
     return snafu
 
 def to_dec(snafu):
@@ -45,4 +38,4 @@ with open('input.txt') as f:
         line = line.strip()
         total += to_dec(line)
 
-    print(f"Part 1: {to_snafu(total)} Merry Christmas!!")
+    print(f"Part 1: {to_snafu(total)} - Merry Christmas!!")
